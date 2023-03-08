@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import "./form.css";
 import "react-phone-number-input/style.css";
-import {toast} from "react-toastify"
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 // import PhoneInput from "react-phone-number-input";
 toast.configure();
 function Form() {
@@ -19,35 +19,50 @@ function Form() {
     firstName,
     lastName,
     email,
-  phoneNumber,
+    phoneNumber,
     courses,
     additionalInformation,
     paymentOptions,
   };
 
- 
-
   const RegisterStudent = async (payload) => {
-    try {
-      setisLoading(true);
-      const response = await fetch("http://194.32.79.199:5000/register", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-      const server = await response.json();
-      console.log(server);
-      toast(server.message)
-      if(server.message === "Student Already Exist. Please Login"){
-        alert("worked")
+    if (
+      firstName === "" ||
+      lastName === "" ||
+      email === "" ||
+      phoneNumber === ""
+    ) {
+      toast.error("field cannot be empty");
+    } else {
+      try {
+        setisLoading(true);
+        const response = await fetch(
+          "https://tmacademy-email.tm-dev.xyz/register",
+          {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          }
+        );
+        const server = await response.json();
+        console.log(server);
+        toast.info(`${server}`);
+        toast(server.message);
+
+        if (server.message.errors) {
+          toast.error(server.message.message);
+        }
+        setisLoading(false);
+      } catch (err) {
+        // if (err === "Student Already Exist. Please Login") {
+        // toast.info(`${err.message}`);
+        // }
+        console.log(err);
+        setisLoading(false);
       }
-      setisLoading(false);
-    } catch (err) {
-      console.log(err);
-      setisLoading(false);
     }
   };
 
@@ -58,110 +73,127 @@ function Form() {
     RegisterStudent(details);
   };
 
-    // console.log(details?.message)
+  // console.log(details?.message)
 
   return (
-    <form>
-      <section className="forms">
-        <div className="names">
-          <li className="form-details">
-            <label>
-              FirstName <sup>*</sup>{" "}
-            </label>{" "}
-            <input
-              required
-              placeholder="John"
-              type="text"
-              onChange={(e) => setfirstName(e.target.value)}
-            />
-          </li>
+    <>
+      <form>
+        <section className="forms">
+          <div className="names">
+            <li className="form-details">
+              <label>
+                FirstName <sup>*</sup>{" "}
+              </label>{" "}
+              <input
+                required
+                placeholder="John"
+                type="text"
+                onChange={(e) => setfirstName(e.target.value)}
+              />
+            </li>
 
-          <li className="form-details">
-            <label>
-              LastName<sup>*</sup>
-            </label>
-            <input
-              required
-              placeholder="Doe"
-              type="text"
-              onChange={(e) => setlastName(e.target.value)}
-            />
-          </li>
-        </div>
+            <li className="form-details">
+              <label>
+                LastName<sup>*</sup>
+              </label>
+              <input
+                required
+                placeholder="Doe"
+                type="text"
+                onChange={(e) => setlastName(e.target.value)}
+              />
+            </li>
+          </div>
 
-        <div className="contact-details">
-          <li className="form-details">
-            <label for="email">
-              Email Address<sup>*</sup>
-            </label>
-            <input
-              required
-              placeholder="johndoe@gmail.com"
-              type="text"
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </li>
-          <li className="form-details">
-            <label for="phone">
-              Phone Number<sup>*</sup>
-            </label>
-            <input
-              required
-              placeholder="Enter phone number"
-              // value={value}
-              onChange={(e) => setphoneNumber(e.target.value) }
-              // onChange={(e) => setphoneNumber(e.target.value)}
-            />
-          </li>
-        </div>
+          <div className="contact-details">
+            <li className="form-details">
+              <label for="email">
+                Email Address<sup>*</sup>
+              </label>
+              <input
+                required
+                placeholder="johndoe@gmail.com"
+                type="text"
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </li>
+            <li className="form-details">
+              <label for="phone">
+                Phone Number<sup>*</sup>
+              </label>
+              <input
+                required
+                placeholder="Enter phone number"
+                // value={value}
+                onChange={(e) => setphoneNumber(e.target.value)}
+                // onChange={(e) => setphoneNumber(e.target.value)}
+              />
+            </li>
+          </div>
 
-        <div className="selectArea">
-          <li className="form-details">
-            <label>
-              Courses <sup>*</sup>
-            </label>{" "}
-            <select
-              // value={courses}
-              onChange={(e) => setCourses(e.target.value)}
-            >
-              <option value="Backend_web_development">
-                Backend Web Development
-              </option>
-              <option value="Mobile_development">Mobile Development</option>
-              <option value="Frontend_web_development">
-                Frontend Web Development
-              </option>
-            </select>
-          </li>
-          <li className="form-details">
-            <label>
-              Select Payment Option <sup>*</sup>
-            </label>
-            <select
-              // value={courses}
-              onChange={(e) => setpaymentOptions(e.target.value)}
-            >
-              <option value="Zero_cost">Zero-Cost</option>
-              <option value="One_off_payment_with_discount">
-                One-off Payment
-              </option>
-              <option value="Installment_payment"> Installment payment</option>
-            </select>
-          </li>
-        </div>
-        <div className="form-details">
-          <label>Additional Information(Optional)</label>
-          <textarea
-            className="comment"
-            value={additionalInformation}
-            onChange={(e) => setadditionalInformation(e.target.value)}
-          ></textarea>
-        </div>
-      </section>
-      <button onClick={handler} className="btN" type="submit">
-        {isLoading ? "processing..." : "Submit"}
-      </button>
-    </form>
+          <div className="selectArea">
+            <li className="form-details">
+              <label>
+                Courses <sup>*</sup>
+              </label>{" "}
+              <select
+                // value={courses}
+                onChange={(e) => setCourses(e.target.value)}
+              >
+                <option value="Backend_web_development">
+                  Backend Web Development
+                </option>
+                <option value="Mobile_development">Mobile Development</option>
+                <option value="Frontend_web_development">
+                  Frontend Web Development
+                </option>
+              </select>
+            </li>
+            <li className="form-details">
+              <label>
+                Select Payment Option <sup>*</sup>
+              </label>
+              <select
+                // value={courses}
+                onChange={(e) => setpaymentOptions(e.target.value)}
+              >
+                <option value="Zero_cost">Zero-Cost</option>
+                <option value="One_off_payment_with_discount">
+                  One-off Payment
+                </option>
+                <option value="Installment_payment">
+                  {" "}
+                  Installment payment
+                </option>
+              </select>
+            </li>
+          </div>
+          <div className="form-details">
+            <label>Additional Information(Optional)</label>
+            <textarea
+              className="comment"
+              value={additionalInformation}
+              onChange={(e) => setadditionalInformation(e.target.value)}
+            ></textarea>
+          </div>
+        </section>
+        <button onClick={handler} className="btN" type="submit">
+          {isLoading ? "processing..." : "Submit"}
+        </button>
+      </form>
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />{" "}
+    </>
   );
 }
 
